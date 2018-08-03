@@ -19,7 +19,10 @@ if __name__=="__main__":
 
     #=== Copy
     files = os.listdir(targetPath)
-    files.remove(saveFileName) # 자기가있으면 자기는 지우는거
+    try:
+        files.remove(saveFileName) # 자기가있으면 자기는 지우는거
+    except:
+        pass
     print(files)
     for file in files:
         print(">>> {} 파일 시작 ".format(file))
