@@ -46,7 +46,7 @@ def bobae_make_excel(name,dataList):
         print(dataList)
 def bobae():
     #=== var
-    INDEX = int(input("추출할 제조사 인덱스 입력 ( 처음 1 ) ::"))-1
+    #INDEX = int(input("추출할 제조사 인덱스 입력 ( 처음 1 ) ::"))-1
     #=== convert BS4
     html = requests.get('http://www.bobaedream.co.kr/mycar/mycar_list.php?sel_m_gubun=ALL')
     html.encoding = 'utf-8'  # 한글 인코딩으로 변환
@@ -60,68 +60,68 @@ def bobae():
     time.sleep(2)
 
     # depth 1
-    dd = bs4.find('div',class_='area-maker').find_all('dd')[INDEX]
-
-    driver.execute_script(dd.button['onclick'])
-    dept1_Title = dd.span.get_text().strip()
-    # depth 2
-    time.sleep(3)
-    bs4 = BeautifulSoup(driver.page_source, 'lxml')
-    modelDiv = bs4.find('div', class_='area-model')
-    dds2 = modelDiv.find_all('dd')
-
-    for dd2 in dds2:
-        dataList = []
-
-        driver.execute_script(dd2.button['onclick'])
-        dept2_Title = dd2.span.get_text().strip()
-        # depth 3
+    dds = bs4.find('div',class_='area-maker').find_all('dd')[21:]
+    for dd in dds:
+        driver.execute_script(dd.button['onclick'])
+        dept1_Title = dd.span.get_text().strip()
+        # depth 2
         time.sleep(3)
         bs4 = BeautifulSoup(driver.page_source, 'lxml')
-        detailDiv = bs4.find('div', class_='area-detail')
-        dds3 = detailDiv.find_all('dd')
-        for dd3 in dds3:
-            if dd3['style'] == '':
-                dept3_Title = dd3.label.get_text().strip()
-                dept3_Id = dd3.input['id']
-                while True:
-                    try:
-                        elem = driver.find_element_by_xpath('//*[@id="{}"]'.format(dept3_Id)).click()
-                        break
-                    except:
-                        time.sleep(0.5)
-                # depth 4
-                time.sleep(3)
-                bs4 = BeautifulSoup(driver.page_source, 'lxml')
-                detailDiv = bs4.find('div', class_='area-grade')
-                dds4 = detailDiv.find_all('dd')
-                loopidx = 1
-                while True:
-                    if len(dds4) == 0: # 한개있을때
-                        while True:
-                            try:
-                                elem = driver.find_element_by_xpath('//*[@id="{}"]'.format(dept3_Id)).click()
-                                break
-                            except:
-                                time.sleep(0.5)
+        modelDiv = bs4.find('div', class_='area-model')
+        dds2 = modelDiv.find_all('dd')
+        print("______"*10)
+        for dd2 in dds2:
+            dataList = []
 
-                        time.sleep(3)
-                        bs4 = BeautifulSoup(driver.page_source, 'lxml')
-                        detailDiv = bs4.find('div', class_='area-grade')
-                        dds4 = detailDiv.find_all('dd')
-                        loopidx += 1
-                        if loopidx == 3:
+            driver.execute_script(dd2.button['onclick'])
+            dept2_Title = dd2.span.get_text().strip()
+            # depth 3
+            time.sleep(3)
+            bs4 = BeautifulSoup(driver.page_source, 'lxml')
+            detailDiv = bs4.find('div', class_='area-detail')
+            dds3 = detailDiv.find_all('dd')
+            for dd3 in dds3:
+                if dd3['style'] == '':
+                    dept3_Title = dd3.label.get_text().strip()
+                    dept3_Id = dd3.input['id']
+                    while True:
+                        try:
+                            elem = driver.find_element_by_xpath('//*[@id="{}"]'.format(dept3_Id)).click()
                             break
-                    else:
-                        break
-                if loopidx == 3:
-                    dataList.append([dept1_Title, dept2_Title, dept3_Title, ''])
-                for dd4 in dds4:
-                    dataList.append([dept1_Title,dept2_Title,dept3_Title,dd4.label.get_text().strip()])
+                        except:
+                            time.sleep(0.5)
+                    # depth 4
+                    time.sleep(3)
+                    bs4 = BeautifulSoup(driver.page_source, 'lxml')
+                    detailDiv = bs4.find('div', class_='area-grade')
+                    dds4 = detailDiv.find_all('dd')
+                    loopidx = 1
+                    while True:
+                        if len(dds4) == 0: # 한개있을때
+                            while True:
+                                try:
+                                    elem = driver.find_element_by_xpath('//*[@id="{}"]'.format(dept3_Id)).click()
+                                    break
+                                except:
+                                    time.sleep(0.5)
 
-                driver.find_element_by_xpath('//*[@id="{}"]'.format(dept3_Id)).click()
+                            time.sleep(3)
+                            bs4 = BeautifulSoup(driver.page_source, 'lxml')
+                            detailDiv = bs4.find('div', class_='area-grade')
+                            dds4 = detailDiv.find_all('dd')
+                            loopidx += 1
+                            if loopidx == 3:
+                                break
+                        else:
+                            break
+                    if loopidx == 3:
+                        dataList.append([dept1_Title, dept2_Title, dept3_Title, ''])
+                    for dd4 in dds4:
+                        dataList.append([dept1_Title,dept2_Title,dept3_Title,dd4.label.get_text().strip()])
 
-        bobae_make_excel(dept1_Title,dataList)
+                    driver.find_element_by_xpath('//*[@id="{}"]'.format(dept3_Id)).click()
+
+            bobae_make_excel(dept1_Title,dataList)
     # ~()
     driver.quit()
 
